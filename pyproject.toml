@@ -1,8 +1,10 @@
 [project]
 name = "chukakuha-arciver"
 version = "0.1.0"
-description = "Archive YouTube channels and Wayback Machine snapshots with yt-dlp"
+description = "Archive video material related to Doro Chiba and Chukakuha"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Nordbahnhof", email = "323519151+vbe-robotron@users.noreply.github.com" }
 ]

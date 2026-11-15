@@ -1,12 +1,14 @@
 # chukakuha-arciver
 
-Wayback Machine のスナップショットや YouTube チャンネルから動画を収集し、[yt-dlp](https://github.com/yt-dlp/yt-dlp) で保存するためのツール集です。
+**動労千葉・中核派に関連する動画素材を収集・保存するためのアーカイブ用スクリプト集です。**
+
+Wayback Machine に残る過去の YouTube チャンネルページや、現行の YouTube チャンネルから動画を収集し、[yt-dlp](https://github.com/yt-dlp/yt-dlp) でローカルに保存します。資料的価値のある映像を失われないうちに手元へ残すことを目的としています。
 
 ## 特徴
 
 - **Wayback Machine 経由の取得** — 過去の YouTube チャンネルページ（アーカイブ）から動画IDを抽出し、yt-dlp で取得
 - **チャンネル一括取得** — `channels.toml` に登録したチャンネルの動画をまとめて取得
-- **設定ファイルで管理** — チャンネルは TOML に追記するだけ。CLI からも追加可能
+- **設定ファイルで管理** — 対象チャンネルは TOML に追記するだけ。CLI からも追加可能
 - **エラー耐性** — 取得できない動画があってもスキップして処理を継続
 - **再実行に強い** — `archive.txt` により取得済みの動画をスキップ
 
@@ -16,8 +18,9 @@ Wayback Machine のスナップショットや YouTube チャンネルから動�
 .
 ├── Zenshin-ch.py          # Wayback Machine から動画IDを抽出して取得
 ├── download_channels.py   # channels.toml のチャンネルをライブYouTubeから取得
-├── channels.toml          # 取得対象チャンネルの設定
+├── channels.toml          # 取得対象チャンネルの設定（動労千葉・中核派関連）
 ├── pyproject.toml
+├── LICENSE                # MIT ライセンス
 ├── uv.lock
 ├── src/
 │   └── chukakuha_arciver/
@@ -42,7 +45,7 @@ uv sync
 
 ### 1. チャンネルを一括取得する
 
-`channels.toml` に取得したいチャンネルを登録します。
+`channels.toml` に取得したいチャンネルを登録します。動労千葉・中核派に関連するチャンネルをあらかじめ登録した状態で同梱しています。対象を増やす場合は `[[channels]]` ブロックを追記するか、`--add` を使ってください。
 
 ```toml
 [download]
@@ -96,4 +99,4 @@ uv run Zenshin-ch.py --download --limit 5 --download-dir downloads_wayback
 
 ## ライセンス
 
-このリポジトリのライセンスは未設定です。
+このリポジトリは [MIT ライセンス](LICENSE) の下で公開されています。

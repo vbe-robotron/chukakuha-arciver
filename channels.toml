@@ -1,5 +1,7 @@
 # chukakuha-arciver - チャンネル設定
 #
+# 動労千葉・中核派に関連する動画素材を収集するための対象チャンネル一覧。
+#
 # チャンネルを追加するには [[channels]] ブロックを増やすか、
 # 次のコマンドで追記できます:
 #   uv run download_channels.py --add "https://www.youtube.com/@example"

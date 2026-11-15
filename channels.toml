@@ -14,25 +14,6 @@ dir = "downloads"
 # 同時に取得するチャンネル数（1 推奨）
 # retries = 3
 
-[filter]
-# 動画のタイトル・チャンネル名などに、次のいずれかのキーワードを含むものだけを取得する。
-# enabled = false にすると絞り込みを無効化する。
-enabled = true
-keywords = [
-    "動労千葉",
-    "久留里線",
-    "JR民営化",
-    "JRの民営化",
-    "国鉄民営化",
-    "中核派",
-    "革命的共産主義者同盟全国委員会",
-    "革共同",
-    "Doro-Chiba",
-    "DoroChiba",
-    "三里塚闘争",
-    "三里塚",
-]
-
 [[channels]]
 name = "MrDoraneko55"
 url = "https://www.youtube.com/@MrDoraneko55"

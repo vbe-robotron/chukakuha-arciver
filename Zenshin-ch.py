@@ -6,12 +6,7 @@ import httpx
 import yt_dlp
 from urllib.parse import urljoin
 
-from chukakuha_arciver.common import (
-    DEFAULT_KEYWORDS,
-    apply_archive_options,
-    normalize_keywords,
-    video_outtmpl,
-)
+from chukakuha_arciver.common import apply_archive_options, video_outtmpl
 
 # ===== 設定 =====
 # 抽出対象のCDXデータ（ファイルから読み込むか、直接記述）
@@ -69,7 +64,7 @@ def fetch_with_retry(client, url, max_retries=5, base_wait=10):
     response.raise_for_status()
     return response
 
-def download_videos(video_ids, download_dir="downloads", keywords=None):
+def download_videos(video_ids, download_dir="downloads"):
     """抽出した動画IDを Wayback Machine 経由で yt-dlp に渡してダウンロードする"""
     os.makedirs(download_dir, exist_ok=True)
     ydl_opts = {
@@ -84,15 +79,13 @@ def download_videos(video_ids, download_dir="downloads", keywords=None):
         "no_warnings": True,
         "noprogress": True,
     }
-    apply_archive_options(ydl_opts, keywords)
+    apply_archive_options(ydl_opts)
 
     urls = [
         f"https://web.archive.org/web/https://www.youtube.com/watch?v={vid}"
         for vid in sorted(video_ids)
     ]
     print(f"\n=== Wayback Machine から {len(urls)} 件を yt-dlp で取得 ({download_dir}) ===")
-    if keywords:
-        print(f"対象キーワード: {', '.join(keywords)}")
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         for i, url in enumerate(urls, 1):
             print(f"[{i}/{len(urls)}] {url}")
@@ -118,14 +111,6 @@ def parse_args():
     parser.add_argument(
         "--limit", type=int, default=None,
         help="ダウンロードする動画数の上限",
-    )
-    parser.add_argument(
-        "--keywords", default=",".join(DEFAULT_KEYWORDS),
-        help="取得対象キーワード（カンマ区切り）",
-    )
-    parser.add_argument(
-        "--no-filter", action="store_true",
-        help="キーワードによる動画の絞り込みを無効にする",
     )
     return parser.parse_args()
 
@@ -166,10 +151,7 @@ def main():
         targets = all_video_ids
         if args.limit is not None:
             targets = set(sorted(all_video_ids)[:args.limit])
-        keywords = None
-        if not args.no_filter:
-            keywords = normalize_keywords(args.keywords)
-        download_videos(targets, args.download_dir, keywords)
+        download_videos(targets, args.download_dir)
 
 
 if __name__ == "__main__":

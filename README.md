@@ -11,8 +11,7 @@ Wayback Machine に残る過去の YouTube チャンネルページや、現行�
 - **Wayback Machine 経由の取得** — 過去の YouTube チャンネルページ（アーカイブ）から動画IDを抽出し、yt-dlp で取得
 - **チャンネル一括取得** — `channels.toml` に登録したチャンネルの動画をまとめて取得
 - **タイトル・サムネイル・メタデータ** — ファイル名に日付・タイトル・動画IDを付け、サムネイル画像と `info.json` / 説明文を保存。動画ファイルにもメタデータとサムネイルを埋め込む
-- **関連動画のみ取得** — 動労千葉・久留里線・JR民営化・中核派などのキーワードに一致する動画だけを取得
-- **設定ファイルで管理** — 対象チャンネルとキーワードは TOML に追記するだけ。CLI からも追加可能
+- **設定ファイルで管理** — 対象チャンネルは TOML に追記するだけ。CLI からも追加可能
 - **エラー耐性** — 取得できない動画があってもスキップして処理を継続
 - **再実行に強い** — `archive.txt` により取得済みの動画をスキップ
 
@@ -29,7 +28,7 @@ Wayback Machine に残る過去の YouTube チャンネルページや、現行�
 ├── src/
 │   └── chukakuha_arciver/
 │       ├── __init__.py
-│       └── common.py      # 共通の yt-dlp 設定・キーワード絞り込み
+│       └── common.py      # 共通の yt-dlp 設定
 └── downloads/             # 取得した動画（生成物・git管理外）
 ```
 
@@ -56,16 +55,10 @@ uv sync
 [download]
 dir = "downloads"
 
-[filter]
-enabled = true
-keywords = ["動労千葉", "久留里線", "JR民営化", "中核派"]
-
 [[channels]]
 name = "example"
 url = "https://www.youtube.com/@example"
 ```
-
-`[filter].keywords` のいずれかを動画のタイトル・チャンネル名などに含む動画だけを取得します。チャンネルごとに `keywords = [...]` を指定すると、そのチャンネルだけ別のキーワードで絞り込めます。`enabled = false` または `--no-filter` で絞り込みを無効化できます。
 
 ```bash
 # 登録チャンネルを確認
@@ -79,9 +72,6 @@ uv run download_channels.py --only example --limit 10
 
 # 保存先を変更
 uv run download_channels.py --download-dir /path/to/archive
-
-# キーワード絞り込みを無効化
-uv run download_channels.py --no-filter
 
 # 設定ファイルにチャンネルを追記
 uv run download_channels.py --add "https://www.youtube.com/@newchannel"
@@ -102,10 +92,6 @@ uv run Zenshin-ch.py --download
 
 # 件数を制限 / 保存先を変更
 uv run Zenshin-ch.py --download --limit 5 --download-dir downloads_wayback
-
-# キーワードを指定 / 絞り込みを無効化
-uv run Zenshin-ch.py --download --keywords "動労千葉,久留里線,JR民営化,中核派"
-uv run Zenshin-ch.py --download --no-filter
 ```
 
 ## 注意事項

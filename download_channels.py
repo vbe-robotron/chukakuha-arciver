@@ -5,6 +5,13 @@ import tomllib
 import yt_dlp
 from urllib.parse import unquote
 
+from chukakuha_arciver.common import (
+    DEFAULT_KEYWORDS,
+    apply_archive_options,
+    normalize_keywords,
+    video_outtmpl,
+)
+
 DEFAULT_CONFIG = "channels.toml"
 
 
@@ -24,10 +31,20 @@ def sanitize(name):
     return "".join("_" if c in '/\\:*?"<>|' else c for c in name).strip() or "channel"
 
 
-def build_opts(channel_dir, limit=None):
+def resolve_keywords(config, channel, no_filter=False):
+    if no_filter or not config.get("filter", {}).get("enabled", True):
+        return None
+    if "keywords" in channel:
+        return normalize_keywords(channel["keywords"])
+    return normalize_keywords(
+        config.get("filter", {}).get("keywords", DEFAULT_KEYWORDS)
+    )
+
+
+def build_opts(channel_dir, limit=None, keywords=None):
     os.makedirs(channel_dir, exist_ok=True)
     opts = {
-        "outtmpl": os.path.join(channel_dir, "%(id)s.%(ext)s"),
+        "outtmpl": video_outtmpl(channel_dir),
         "format": "bv*+ba/b",
         "merge_output_format": "mp4",
         "ignoreerrors": True,
@@ -39,6 +56,7 @@ def build_opts(channel_dir, limit=None):
         "noprogress": False,
         "remote_components": {"ejs:github"},
     }
+    apply_archive_options(opts, keywords)
     js_runtime = next(
         (rt for rt in ("deno", "node", "bun") if shutil.which(rt)), None
     )
@@ -62,13 +80,15 @@ def add_channel(path, url, name=None):
     print(f"追加しました: {name} <{url}>")
 
 
-def download_channel(channel, download_dir, limit=None):
+def download_channel(channel, download_dir, limit=None, keywords=None):
     name = sanitize(channel.get("name") or derive_name(channel["url"]))
     channel_dir = os.path.join(download_dir, name)
-    opts = build_opts(channel_dir, limit)
+    opts = build_opts(channel_dir, limit, keywords)
     print(f"\n=== {name} ===")
     print(f"URL: {channel['url']}")
     print(f"保存先: {channel_dir}")
+    if keywords:
+        print(f"対象キーワード: {', '.join(keywords)}")
     with yt_dlp.YoutubeDL(opts) as ydl:
         ydl.download([channel["url"]])
 
@@ -104,6 +124,10 @@ def parse_args():
     parser.add_argument(
         "--name", default=None,
         help="--add 時に使うチャンネル名",
+    )
+    parser.add_argument(
+        "--no-filter", action="store_true",
+        help="キーワードによる動画の絞り込みを無効にする",
     )
     return parser.parse_args()
 
@@ -143,7 +167,8 @@ def main():
     failures = []
     for channel in channels:
         try:
-            download_channel(channel, download_dir, args.limit)
+            keywords = resolve_keywords(config, channel, args.no_filter)
+            download_channel(channel, download_dir, args.limit, keywords)
         except Exception as e:
             name = channel.get("name") or derive_name(channel["url"])
             print(f"  ⚠️ スキップ ({name}): {e}")

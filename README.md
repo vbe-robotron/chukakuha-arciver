@@ -10,7 +10,9 @@ Wayback Machine に残る過去の YouTube チャンネルページや、現行�
 
 - **Wayback Machine 経由の取得** — 過去の YouTube チャンネルページ（アーカイブ）から動画IDを抽出し、yt-dlp で取得
 - **チャンネル一括取得** — `channels.toml` に登録したチャンネルの動画をまとめて取得
-- **設定ファイルで管理** — 対象チャンネルは TOML に追記するだけ。CLI からも追加可能
+- **タイトル・サムネイル・メタデータ** — ファイル名に日付・タイトル・動画IDを付け、サムネイル画像と `info.json` / 説明文を保存。動画ファイルにもメタデータとサムネイルを埋め込む
+- **関連動画のみ取得** — 動労千葉・久留里線・JR民営化・中核派などのキーワードに一致する動画だけを取得
+- **設定ファイルで管理** — 対象チャンネルとキーワードは TOML に追記するだけ。CLI からも追加可能
 - **エラー耐性** — 取得できない動画があってもスキップして処理を継続
 - **再実行に強い** — `archive.txt` により取得済みの動画をスキップ
 
@@ -26,7 +28,8 @@ Wayback Machine に残る過去の YouTube チャンネルページや、現行�
 ├── uv.lock
 ├── src/
 │   └── chukakuha_arciver/
-│       └── __init__.py
+│       ├── __init__.py
+│       └── common.py      # 共通の yt-dlp 設定・キーワード絞り込み
 └── downloads/             # 取得した動画（生成物・git管理外）
 ```
 
@@ -53,10 +56,16 @@ uv sync
 [download]
 dir = "downloads"
 
+[filter]
+enabled = true
+keywords = ["動労千葉", "久留里線", "JR民営化", "中核派"]
+
 [[channels]]
 name = "example"
 url = "https://www.youtube.com/@example"
 ```
+
+`[filter].keywords` のいずれかを動画のタイトル・チャンネル名などに含む動画だけを取得します。チャンネルごとに `keywords = [...]` を指定すると、そのチャンネルだけ別のキーワードで絞り込めます。`enabled = false` または `--no-filter` で絞り込みを無効化できます。
 
 ```bash
 # 登録チャンネルを確認
@@ -71,11 +80,14 @@ uv run download_channels.py --only example --limit 10
 # 保存先を変更
 uv run download_channels.py --download-dir /path/to/archive
 
+# キーワード絞り込みを無効化
+uv run download_channels.py --no-filter
+
 # 設定ファイルにチャンネルを追記
 uv run download_channels.py --add "https://www.youtube.com/@newchannel"
 ```
 
-取得した動画は `downloads/<チャンネル名>/` に保存され、同ディレクトリの `archive.txt` で取得済みを管理します。
+取得した動画は `downloads/<チャンネル名>/` に `日付 - タイトル [動画ID].mp4` の形式で保存されます。同じ場所にサムネイル画像（`.jpg`）、メタデータ（`.info.json`）、説明文（`.description`）が出力され、動画ファイルにもタイトル・説明・サムネイルが埋め込まれます。取得済みの管理は同ディレクトリの `archive.txt` で行います。
 
 ### 2. Wayback Machine から取得する
 
@@ -90,6 +102,10 @@ uv run Zenshin-ch.py --download
 
 # 件数を制限 / 保存先を変更
 uv run Zenshin-ch.py --download --limit 5 --download-dir downloads_wayback
+
+# キーワードを指定 / 絞り込みを無効化
+uv run Zenshin-ch.py --download --keywords "動労千葉,久留里線,JR民営化,中核派"
+uv run Zenshin-ch.py --download --no-filter
 ```
 
 ## 注意事項
@@ -100,6 +116,7 @@ uv run Zenshin-ch.py --download --limit 5 --download-dir downloads_wayback
 - Wayback にアーカイブされていない動画は取得できません。その場合はスキップされます。
 - 動画の取得・保存は各サービスの利用規約および著作権を尊重し、個人利用の範囲で行ってください。
 - `downloads/` は `.gitignore` 対象です。大量のメディアをリポジトリに含めないよう注意してください。
+- 既に `archive.txt` に記録されている動画は再取得されません。新しいメタデータ・サムネイルを付け直したい場合は、該当する動画IDの行を `archive.txt` から削除して再実行してください。
 
 ## ライセンス
 

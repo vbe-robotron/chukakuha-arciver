@@ -6,6 +6,7 @@ import yt_dlp
 from urllib.parse import unquote
 
 from chukakuha_arciver.common import apply_archive_options, video_outtmpl
+from chukakuha_arciver.metadata import integrate_downloads
 
 DEFAULT_CONFIG = "channels.toml"
 
@@ -151,6 +152,8 @@ def main():
             name = channel.get("name") or derive_name(channel["url"])
             print(f"  ⚠️ スキップ ({name}): {e}")
             failures.append(name)
+
+    integrate_downloads(download_dir)
 
     print("\n=== 完了 ===")
     if failures:

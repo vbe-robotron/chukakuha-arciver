@@ -11,6 +11,7 @@ Wayback Machine に残る過去の YouTube チャンネルページや、現行�
 - **Wayback Machine 経由の取得** — 過去の YouTube チャンネルページ（アーカイブ）から動画IDを抽出し、yt-dlp で取得
 - **チャンネル一括取得** — `channels.toml` に登録したチャンネルの動画をまとめて取得
 - **タイトル・サムネイル・メタデータ** — ファイル名に日付・タイトル・動画IDを付け、サムネイル画像と `info.json` / 説明文を保存。動画ファイルにもメタデータとサムネイルを埋め込む
+- **既存動画の自動補修** — 取得後に統合状態を確認し、未統合の動画へメタデータとサムネイルを後付けする
 - **設定ファイルで管理** — 対象チャンネルは TOML に追記するだけ。CLI からも追加可能
 - **エラー耐性** — 取得できない動画があってもスキップして処理を継続
 - **再実行に強い** — `archive.txt` により取得済みの動画をスキップ
@@ -21,6 +22,7 @@ Wayback Machine に残る過去の YouTube チャンネルページや、現行�
 .
 ├── Zenshin-ch.py          # Wayback Machine から動画IDを抽出して取得
 ├── download_channels.py   # channels.toml のチャンネルをライブYouTubeから取得
+├── integrate_metadata.py  # 既存動画へサムネイル・メタデータを後付け
 ├── channels.toml          # 取得対象チャンネルの設定（動労千葉・中核派関連）
 ├── pyproject.toml
 ├── LICENSE                # MIT ライセンス
@@ -28,7 +30,8 @@ Wayback Machine に残る過去の YouTube チャンネルページや、現行�
 ├── src/
 │   └── chukakuha_arciver/
 │       ├── __init__.py
-│       └── common.py      # 共通の yt-dlp 設定
+│       ├── common.py      # 共通の yt-dlp 設定
+│       └── metadata.py    # サムネイル・メタデータの統合処理
 └── downloads/             # 取得した動画（生成物・git管理外）
 ```
 
@@ -79,7 +82,19 @@ uv run download_channels.py --add "https://www.youtube.com/@newchannel"
 
 取得した動画は `downloads/<チャンネル名>/` に `日付 - タイトル [動画ID].mp4` の形式で保存されます。同じ場所にサムネイル画像（`.jpg`）、メタデータ（`.info.json`）、説明文（`.description`）が出力され、動画ファイルにもタイトル・説明・サムネイルが埋め込まれます。取得済みの管理は同ディレクトリの `archive.txt` で行います。
 
-### 2. Wayback Machine から取得する
+### 2. 既存の動画をまとめて統合する
+
+過去に取得した動画や、サムネイル・メタデータが未統合の動画をまとめて処理します。取得処理の実行後にも自動で走ります。
+
+```bash
+# downloads/ 以下を再帰的に確認して統合
+uv run integrate_metadata.py
+
+# 統合済みの動画にも再適用
+uv run integrate_metadata.py --force
+```
+
+### 3. Wayback Machine から取得する
 
 `Zenshin-ch.py` 内の `snapshots` に、取得したい Wayback のスナップショット（タイムスタンプと元URL）を記述します。
 
@@ -102,7 +117,7 @@ uv run Zenshin-ch.py --download --limit 5 --download-dir downloads_wayback
 - Wayback にアーカイブされていない動画は取得できません。その場合はスキップされます。
 - 動画の取得・保存は各サービスの利用規約および著作権を尊重し、個人利用の範囲で行ってください。
 - `downloads/` は `.gitignore` 対象です。大量のメディアをリポジトリに含めないよう注意してください。
-- 既に `archive.txt` に記録されている動画は再取得されません。新しいメタデータ・サムネイルを付け直したい場合は、該当する動画IDの行を `archive.txt` から削除して再実行してください。
+- 既に `archive.txt` に記録されている動画は再取得されません。既存動画のメタデータ・サムネイルは `uv run integrate_metadata.py` で後付けできます。
 
 ## ライセンス
 

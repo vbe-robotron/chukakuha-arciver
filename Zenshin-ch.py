@@ -7,6 +7,7 @@ import yt_dlp
 from urllib.parse import urljoin
 
 from chukakuha_arciver.common import apply_archive_options, video_outtmpl
+from chukakuha_arciver.metadata import integrate_downloads
 
 # ===== 設定 =====
 # 抽出対象のCDXデータ（ファイルから読み込むか、直接記述）
@@ -152,6 +153,7 @@ def main():
         if args.limit is not None:
             targets = set(sorted(all_video_ids)[:args.limit])
         download_videos(targets, args.download_dir)
+        integrate_downloads(args.download_dir)
 
 
 if __name__ == "__main__":

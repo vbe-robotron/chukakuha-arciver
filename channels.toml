@@ -1,0 +1,40 @@
+# chukakuha-arciver - チャンネル設定
+#
+# チャンネルを追加するには [[channels]] ブロックを増やすか、
+# 次のコマンドで追記できます:
+#   uv run download_channels.py --add "https://www.youtube.com/@example"
+
+[download]
+# 動画の保存先（チャンネル名ごとのサブディレクトリが作られます）
+dir = "downloads"
+# 同時に取得するチャンネル数（1 推奨）
+# retries = 3
+
+[[channels]]
+name = "MrDoraneko55"
+url = "https://www.youtube.com/@MrDoraneko55"
+
+[[channels]]
+name = "おおあさパパ"
+url = "https://www.youtube.com/@%E3%81%8A%E3%81%8A%E3%81%82%E3%81%95%E3%83%91%E3%83%91"
+
+[[channels]]
+name = "sanrizukadoumei"
+url = "https://www.youtube.com/@sanrizukadoumei"
+
+[[channels]]
+name = "dugonghouse2009"
+url = "https://www.youtube.com/@dugonghouse2009"
+
+[[channels]]
+name = "ZenshinSokuhou"
+url = "https://www.youtube.com/@ZenshinSokuhou"
+
+[[channels]]
+name = "rintaroshobo"
+url = "https://www.youtube.com/@rintaroshobo"
+
+# dugonghouse2009 は上と重複するためコメントアウト
+# [[channels]]
+# name = "dugonghouse2009"
+# url = "https://www.youtube.com/@dugonghouse2009"

@@ -1,0 +1,22 @@
+[project]
+name = "chukakuha-arciver"
+version = "0.1.0"
+description = "Archive YouTube channels and Wayback Machine snapshots with yt-dlp"
+readme = "README.md"
+authors = [
+    { name = "Nordbahnhof", email = "323519151+vbe-robotron@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "bs4>=0.0.2",
+    "httpx[http2]>=0.28.1",
+    "requests>=2.34.2",
+    "yt-dlp>=2026.10.26",
+]
+
+[project.scripts]
+chukakuha-arciver = "chukakuha_arciver:main"
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
